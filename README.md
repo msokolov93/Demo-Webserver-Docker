@@ -1,4 +1,13 @@
 #### Solution:
+
+download ```docker pull agojama/agojama-repo:main```
+
+run ```docker run -p 8080:8080 agojama/agojama-repo:main```
+
+test ```curl localhost:8080```
+
+### Description:
+
 <p>Right now repository has a working http server application in docker that builds and publishes image to Docker Hub.</p>
 <p>Unfortunatly, I underestimated complexity of source code and instead cutting down a few lines for https, got stuck with automated tests.</p>
 <p>Best approach in this situation would be to use borrowed version of application as is with modifyed pipelines and configuration.</p>
