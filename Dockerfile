@@ -6,8 +6,6 @@ COPY . /app
 RUN set -ex \
   # Build JS-Application
   && npm install --production \
-  # Delete unnecessary files
-  && rm package* generate-cert.sh \
   # Correct User's file access
   && chown -R node:node /app \
   && chmod +r /app/privkey.pem
