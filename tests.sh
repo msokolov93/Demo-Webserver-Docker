@@ -41,41 +41,41 @@ sleep 5
 
 
 message " Make http(s) request, and test the path, method, header and status code. "
-REQUEST=$(curl -s -k -X PUT -H "Arbitrary:Header" -d aaa=bbb 'https://localhost:8443/hello-world?ccc=ddd&myquery=98765')
+REQUEST=$(curl -s -k -X PUT -H "Arbitrary:Header" -d aaa=bbb 'http://localhost:8443/hello-world?ccc=ddd&myquery=98765')
 if [ $(echo $REQUEST | jq -r '.path') == '/hello-world' ] && \
    [ $(echo $REQUEST | jq -r '.method') == 'PUT' ] && \
    [ $(echo $REQUEST | jq -r '.query.myquery') == '98765' ] && \
    [ $(echo $REQUEST | jq -r '.headers.arbitrary') == 'Header' ]
 then
-    passed "HTTPS request passed."
+    passed "HTTP(S) request passed."
 else
-    failed "HTTPS request failed."
+    failed "HTTP(S) request failed."
     echo $REQUEST | jq
     exit 1
 fi
-REQUEST_WITH_STATUS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" -H "x-set-response-status-code: 404" https://localhost:8443/hello-world)
-REQUEST_WITH_STATUS_CODE_V=$(curl -v -k -o /dev/null -w "%{http_code}" -H "x-set-response-status-code: 404" https://localhost:8443/hello-world)
+REQUEST_WITH_STATUS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" -H "x-set-response-status-code: 404" http://localhost:8443/hello-world)
+REQUEST_WITH_STATUS_CODE_V=$(curl -v -k -o /dev/null -w "%{http_code}" -H "x-set-response-status-code: 404" http://localhost:8443/hello-world)
 if [ $(echo $REQUEST_WITH_STATUS_CODE == '404') ]
 then
-    passed "HTTPS status code header passed."
+    passed "HTTP(S) status code header passed."
 else
-    failed "HTTPS status code header failed."
+    failed "HTTP(S) status code header failed."
     echo $REQUEST_WITH_STATUS_CODE_V
     exit 1
 fi
 
-REQUEST_WITH_STATUS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" https://localhost:8443/status/test?x-set-response-status-code=419)
-REQUEST_WITH_STATUS_CODE_V=$(curl -v -k -o /dev/null -w "%{http_code}" https://localhost:8443/hello-world?x-set-response-status-code=419)
+REQUEST_WITH_STATUS_CODE=$(curl -s -k -o /dev/null -w "%{http_code}" http://localhost:8443/status/test?x-set-response-status-code=419)
+REQUEST_WITH_STATUS_CODE_V=$(curl -v -k -o /dev/null -w "%{http_code}" http://localhost:8443/hello-world?x-set-response-status-code=419)
 if [ $(echo $REQUEST_WITH_STATUS_CODE == '419') ]
 then
-    passed "HTTPS status code querystring passed."
+    passed "HTTP status code querystring passed."
 else
-    failed "HTTPS status code querystring failed."
+    failed "HTTP status code querystring failed."
     echo $REQUEST_WITH_STATUS_CODE_V
     exit 1
 fi
 
-REQUEST_WITH_SLEEP_MS=$(curl -o /dev/null -Ss -H "x-set-response-delay-ms: 6000" -k https://localhost:8443/ -w '%{time_total}')
+REQUEST_WITH_SLEEP_MS=$(curl -o /dev/null -Ss -H "x-set-response-delay-ms: 6000" -k http://localhost:8443/ -w '%{time_total}')
 if [[ $(echo "$REQUEST_WITH_SLEEP_MS>5" | bc -l) == 1 ]]; then 
     passed "Request header with response delay passed"
 else 
@@ -84,7 +84,7 @@ else
     exit 1
 fi
 
-REQUEST_WITH_SLEEP_MS=$(curl -o /dev/null -Ss -k https://localhost:8443/sleep/test?x-set-response-delay-ms=5000 -w '%{time_total}')
+REQUEST_WITH_SLEEP_MS=$(curl -o /dev/null -Ss -k http://localhost:8443/sleep/test?x-set-response-delay-ms=5000 -w '%{time_total}')
 if [[ $(echo "$REQUEST_WITH_SLEEP_MS>4" | bc -l) == 1 ]]; then 
     passed "Request query with response delay passed"
 else 
@@ -93,7 +93,7 @@ else
     exit 1
 fi
 
-REQUEST_WITH_INVALID_SLEEP_MS=$(curl -o /dev/null -Ss -H "x-set-response-delay-ms: XXXX" -k https://localhost:8443/ -w '%{time_total}')
+REQUEST_WITH_INVALID_SLEEP_MS=$(curl -o /dev/null -Ss -H "x-set-response-delay-ms: XXXX" -k http://localhost:8443/ -w '%{time_total}')
 if [[ $(echo "$REQUEST_WITH_INVALID_SLEEP_MS<2" | bc -l) == 1 ]]; then 
     passed "Request with invalid response delay passed"
 else 
@@ -129,11 +129,11 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Start container with different internal ports "
-docker run -d --rm -e HTTP_PORT=8888 -e HTTPS_PORT=9999 --name http-echo-tests -p 8080:8888 -p 8443:9999 -t agojama/agojama-repo
+docker run -d --rm -e HTTP_PORT=8888 -e HTTP_PORT=9999 --name http-echo-tests -p 8080:8888 -p 8443:9999 -t agojama/agojama-repo
 sleep 5
 
 message " Make http(s) request, and test the path, method and header. "
-REQUEST=$(curl -s -k -X PUT -H "Arbitrary:Header" -d aaa=bbb https://localhost:8443/hello-world)
+REQUEST=$(curl -s -k -X PUT -H "Arbitrary:Header" -d aaa=bbb http://localhost:8443/hello-world)
 if [ $(echo $REQUEST | jq -r '.path') == '/hello-world' ] && \
    [ $(echo $REQUEST | jq -r '.method') == 'PUT' ] && \
    [ $(echo $REQUEST | jq -r '.headers.arbitrary') == 'Header' ]
@@ -200,7 +200,7 @@ docker stop http-echo-tests
 message " Start container with LOG_IGNORE_PATH "
 docker run -d --rm -e LOG_IGNORE_PATH=/ping --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
-curl -s -k -X POST -d "banana" https://localhost:8443/ping > /dev/null
+curl -s -k -X POST -d "banana" http://localhost:8443/ping > /dev/null
 
 if [ $(docker logs http-echo-tests | wc -l) == 2 ] && \
    ! [ $(docker logs http-echo-tests | grep banana) ]
@@ -219,7 +219,7 @@ docker stop http-echo-tests
 message " Start container with DISABLE_REQUEST_LOGS "
 docker run -d --rm -e DISABLE_REQUEST_LOGS=true --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
-curl -s -k -X GET https://localhost:8443/strawberry > /dev/null
+curl -s -k -X GET http://localhost:8443/strawberry > /dev/null
 if  [ $(docker logs http-echo-tests | grep -c "GET /strawberry HTTP/1.1") -eq 0 ]
 then
     passed "DISABLE_REQUEST_LOGS disabled Express HTTP logging"
@@ -236,7 +236,7 @@ docker stop http-echo-tests
 message " Start container with LOG_WITHOUT_NEWLINE "
 docker run -d --rm -e LOG_WITHOUT_NEWLINE=1 --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
-curl -s -k -X POST -d "tiramisu" https://localhost:8443/ > /dev/null
+curl -s -k -X POST -d "tiramisu" http://localhost:8443/ > /dev/null
 
 if [ $(docker logs http-echo-tests | wc -l) == 3 ] && \
    [ $(docker logs http-echo-tests | grep tiramisu) ]
