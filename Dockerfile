@@ -6,7 +6,6 @@ COPY . /app
 RUN set -ex \
   # Build JS-Application
   && npm install --production \
-  && rm -rf /var/cache/apk/* \
   # Delete unnecessary files
   && rm package* generate-cert.sh \
   # Correct User's file access
