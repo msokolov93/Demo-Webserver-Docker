@@ -1,13 +1,10 @@
-Solution:
-Right now repository has a working http server application in docker that builds and publishes image to Docker Hub.
+#### Solution:
+<p>Right now repository has a working http server application in docker that builds and publishes image to Docker Hub.</p>
+<p>Unfortunatly, I underestimated complexity of source code and instead cutting down a few lines for https, got stuck with automated tests.</p>
+<p>Best approach in this situation would be to use borrowed version of application as is with modifyed pipelines and configuration.</p>
+<p>Then writing clean http-only version of app when time allows.</p>
 
-Unfortunatly, I underestimated complexity of source code and instead cutting down a few lines for https, got stuck with automated tests.
-
-Best approach in this situation would be to use borrowed version of application as is with modifyed pipelines and configuration.
-
-Then writing clean http-only version of app when time allows.
-
-Home assignment
+#### Home assignment
 1. Build a Web application that outputs the client IP address, in any programming/scripting
 language of your choice
 
