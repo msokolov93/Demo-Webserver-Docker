@@ -27,7 +27,7 @@ if ! [ -x "$(command -v jq)" ]; then
 fi
 
 message " Build image "
-docker build -t mendhak/http-https-echo:latest .
+docker build -t agojama/agojama-repo:latest .
 
 mkdir -p testarea
 pushd testarea
@@ -36,7 +36,7 @@ message " Cleaning up from previous test run "
 docker ps -q --filter "name=http-echo-tests" | grep -q . && docker stop http-echo-tests
 
 message " Start container normally "
-docker run -d --rm --name http-echo-tests -p 8080:8080 -p 8443:8443 -t mendhak/http-https-echo
+docker run -d --rm --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
 
 
@@ -129,7 +129,7 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Start container with different internal ports "
-docker run -d --rm -e HTTP_PORT=8888 -e HTTPS_PORT=9999 --name http-echo-tests -p 8080:8888 -p 8443:9999 -t mendhak/http-https-echo
+docker run -d --rm -e HTTP_PORT=8888 -e HTTPS_PORT=9999 --name http-echo-tests -p 8080:8888 -p 8443:9999 -t agojama/agojama-repo
 sleep 5
 
 message " Make http(s) request, and test the path, method and header. "
@@ -162,7 +162,7 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Start container with empty responses "
-docker run -d --rm -e ECHO_BACK_TO_CLIENT=false --name http-echo-tests -p 8080:8080 -p 8443:8443 -t mendhak/http-https-echo
+docker run -d --rm -e ECHO_BACK_TO_CLIENT=false --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
 REQUEST=$(curl -s -k http://localhost:8080/a/b/c)
 if [[ -z ${REQUEST} ]]
@@ -178,7 +178,7 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Start container with JWT_HEADER "
-docker run -d --rm -e JWT_HEADER=Authentication --name http-echo-tests -p 8080:8080 -p 8443:8443 -t mendhak/http-https-echo
+docker run -d --rm -e JWT_HEADER=Authentication --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
 
 REQUEST=$(curl -s -k -H "Authentication: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" https://localhost:8443/ )
@@ -198,7 +198,7 @@ docker stop http-echo-tests
 
 
 message " Start container with LOG_IGNORE_PATH "
-docker run -d --rm -e LOG_IGNORE_PATH=/ping --name http-echo-tests -p 8080:8080 -p 8443:8443 -t mendhak/http-https-echo
+docker run -d --rm -e LOG_IGNORE_PATH=/ping --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
 curl -s -k -X POST -d "banana" https://localhost:8443/ping > /dev/null
 
@@ -217,7 +217,7 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Start container with DISABLE_REQUEST_LOGS "
-docker run -d --rm -e DISABLE_REQUEST_LOGS=true --name http-echo-tests -p 8080:8080 -p 8443:8443 -t mendhak/http-https-echo
+docker run -d --rm -e DISABLE_REQUEST_LOGS=true --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
 curl -s -k -X GET https://localhost:8443/strawberry > /dev/null
 if  [ $(docker logs http-echo-tests | grep -c "GET /strawberry HTTP/1.1") -eq 0 ]
@@ -234,7 +234,7 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Start container with LOG_WITHOUT_NEWLINE "
-docker run -d --rm -e LOG_WITHOUT_NEWLINE=1 --name http-echo-tests -p 8080:8080 -p 8443:8443 -t mendhak/http-https-echo
+docker run -d --rm -e LOG_WITHOUT_NEWLINE=1 --name http-echo-tests -p 8080:8080 -p 8443:8443 -t agojama/agojama-repo
 sleep 5
 curl -s -k -X POST -d "tiramisu" https://localhost:8443/ > /dev/null
 
@@ -253,7 +253,7 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Check that container is running as a NON ROOT USER by default"
-docker run -d --name http-echo-tests --rm mendhak/http-https-echo
+docker run -d --name http-echo-tests --rm agojama/agojama-repo
 
 WHOAMI=$(docker exec http-echo-tests whoami)
 
@@ -269,9 +269,9 @@ message " Stop containers "
 docker stop http-echo-tests
 
 message " Check that container is running as user different that the user defined in image"
-IMAGE_USER="$(docker image inspect mendhak/http-https-echo -f '{{ .ContainerConfig.User }}')"
+IMAGE_USER="$(docker image inspect agojama/agojama-repo -f '{{ .ContainerConfig.User }}')"
 CONTAINER_USER="$((IMAGE_USER + 1000000))"
-docker run -d --name http-echo-tests --rm -u "${CONTAINER_USER}" -p 8080:8080 mendhak/http-https-echo
+docker run -d --name http-echo-tests --rm -u "${CONTAINER_USER}" -p 8080:8080 agojama/agojama-repo
 sleep 5
 curl -s http://localhost:8080 > /dev/null
 
