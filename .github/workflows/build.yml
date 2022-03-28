@@ -41,7 +41,7 @@ jobs:
         id: scan
         uses: anchore/scan-action@v2
         with:
-          image: "mendhak/http-https-echo:latest"
+          image: "agojama/agojama-repo:latest"
           debug: false
           acs-report-enable: true
       - name: upload Anchore scan SARIF report
